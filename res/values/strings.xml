@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">localInfoChecker</string>
+    <string name="txt_btnBTMACAddr">Local BT MAC address</string>
+    <string name="txt_btnPairedBTMACAddr">Paired BT MAC Addr</string>
+</resources>
