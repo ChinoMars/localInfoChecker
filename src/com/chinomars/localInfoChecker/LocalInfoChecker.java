@@ -25,7 +25,7 @@ public class LocalInfoChecker extends Activity {
     Button btnLocalBTMACAddr, btnPairedBTMACAddr;
 
     ArrayAdapter<String> adtDevices;
-    List<String> lstDevices;
+    List<String> lstDevices = new ArrayList<>();
     BluetoothAdapter btAdapter;
 
     @Override
@@ -37,12 +37,15 @@ public class LocalInfoChecker extends Activity {
         btnLocalBTMACAddr.setOnClickListener(new ClickEvent());
         btnPairedBTMACAddr = (Button) findViewById(R.id.btn_pairedBTMACAddr);
         btnPairedBTMACAddr.setOnClickListener(new ClickEvent());
-        btnPairedBTMACAddr.setEnabled(false);
+//        btnPairedBTMACAddr.setEnabled(false);
 
         btAdapter = BluetoothAdapter.getDefaultAdapter();
         if (btAdapter == null) {
             Toast.makeText(LocalInfoChecker.this, "never found bluetooth adapter", 1000).show();
+            finish();
         }
+
+        adtDevices = new ArrayAdapter<>(LocalInfoChecker.this, android.R.layout.simple_list_item_1, lstDevices);
 
         IntentFilter intent = new IntentFilter();
         intent.addAction(BluetoothDevice.ACTION_FOUND);
@@ -51,7 +54,7 @@ public class LocalInfoChecker extends Activity {
         registerReceiver(searchDevices, intent);
 
 
-        addPairedDevice();
+            addPairedDevice();
 
     }
 
@@ -60,7 +63,7 @@ public class LocalInfoChecker extends Activity {
         Set<BluetoothDevice> pairedDevices = btAdapter.getBondedDevices();
         if (pairedDevices.size() > 0) {
             for (BluetoothDevice device : pairedDevices) {
-                String str = device.getName() + "|" + device.getAddress();
+                String str = device.getAddress() + "|" + device.getName();
                 lstDevices.add(str);
                 adtDevices.notifyDataSetChanged();
             }
@@ -93,9 +96,9 @@ public class LocalInfoChecker extends Activity {
             if (v == btnLocalBTMACAddr) {
                 mShowLocalBTMACAddr();
             } else if (v == btnPairedBTMACAddr) {
-//                if (!btAdapter.isEnabled()) {
-//                    btAdapter.enable();
-//                }
+                if (!btAdapter.isEnabled()) {
+                    btAdapter.enable();
+                }
                 mShowBTDevicesInfo();
             }
 
@@ -127,22 +130,21 @@ public class LocalInfoChecker extends Activity {
             ListView lvBTDevice = new ListView(this);
             lvBTDevice.setFadingEdgeLength(0);
 
-            adtDevices = new ArrayAdapter<>(LocalInfoChecker.this, android.R.layout.simple_list_item_1, lstDevices);
             lvBTDevice.setAdapter(adtDevices);
 
             btDeviceLayout.addView(lvBTDevice);
 
             final AlertDialog dialog = new AlertDialog.Builder(this)
-                    .setTitle("蓝牙设备信息")
+                    .setTitle("BT Device")
                     .setView(btDeviceLayout)
                     .setIcon(android.R.drawable.ic_dialog_info)
-                    .setNegativeButton("取消", new DialogInterface.OnClickListener(){
+                    .setNegativeButton("Yes", new DialogInterface.OnClickListener(){
                         @Override
                         public void onClick(DialogInterface dialog, int which){
                             dialog.cancel();
                         }
                     }).create();
-//        dialog.setCanceledOnTouchOutside(false); // 取消点击对话框区域外的部分弹出
+        dialog.setCanceledOnTouchOutside(false); // 取消点击对话框区域外的部分弹出
             dialog.show();
         } catch (Exception e) {
             Log.e("TAG", "list bluetooth devices info error");
